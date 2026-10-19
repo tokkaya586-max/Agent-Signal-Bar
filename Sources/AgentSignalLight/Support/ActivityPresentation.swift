@@ -121,13 +121,25 @@ enum ActivityPresentation {
     }
 
     /// Badge: distinct sessions in 回复待查看 / 等待确认 / 错误 only.
+    /// Counts by `sessionID` — does not collapse multiple Claude/Codex sessions per agent.
     static func attentionBadgeSessions(
         from snapshot: SignalSnapshot,
         now: Date = Date(),
         limit: Int? = currentSessionLimit
     ) -> [SessionStatus] {
-        visibleSessions(from: snapshot, now: now, limit: limit)
+        var sessions = snapshot.sessions
+            .filter { isVisibleSession($0, now: now, includePresenceOnly: false) }
             .filter(isAttentionBadgeSession)
+            .sorted { lhs, rhs in
+                if lhs.signal.displayState.priority != rhs.signal.displayState.priority {
+                    return lhs.signal.displayState.priority > rhs.signal.displayState.priority
+                }
+                return lhs.updatedAt > rhs.updatedAt
+            }
+        if let limit {
+            sessions = Array(sessions.prefix(limit))
+        }
+        return sessions
     }
 
     static func recentEvents(
