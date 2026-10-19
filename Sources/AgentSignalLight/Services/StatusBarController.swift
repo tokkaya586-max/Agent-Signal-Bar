@@ -428,17 +428,19 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSPopoverDelegate, NS
     private func addOpenAgentMenuItems(to menu: NSMenu, snapshot: SignalSnapshot) {
         let agents = nativeRunningAgentKeys(from: snapshot)
         if agents.isEmpty {
-            menu.addItem(actionMenuItem(model.text("打开 Codex", "Open Codex"), imageName: "terminal", action: #selector(openCodexFromMenu)))
+            menu.addItem(actionMenuItem(model.text("打开 ChatGPT", "Open ChatGPT"), imageName: "terminal", action: #selector(openCodexFromMenu)))
             menu.addItem(actionMenuItem(model.text("打开 Claude", "Open Claude"), imageName: "sparkles", action: #selector(openClaudeFromMenu)))
+            menu.addItem(actionMenuItem(model.text("打开 Grok Bot", "Open Grok Bot"), imageName: "bolt", action: #selector(openGrokFromMenu)))
             return
         }
 
         if agents.contains("codex") {
-            menu.addItem(actionMenuItem(model.text("打开 Codex", "Open Codex"), imageName: "terminal", action: #selector(openCodexFromMenu)))
+            menu.addItem(actionMenuItem(model.text("打开 ChatGPT", "Open ChatGPT"), imageName: "terminal", action: #selector(openCodexFromMenu)))
         }
 
         if agents.contains("claude") {
             menu.addItem(actionMenuItem(model.text("打开 Claude", "Open Claude"), imageName: "sparkles", action: #selector(openClaudeFromMenu)))
+            menu.addItem(actionMenuItem(model.text("打开 Grok Bot", "Open Grok Bot"), imageName: "bolt", action: #selector(openGrokFromMenu)))
         }
     }
 
@@ -690,11 +692,15 @@ final class StatusBarController: NSObject, NSMenuDelegate, NSPopoverDelegate, NS
     }
 
     @objc private func openCodexFromMenu() {
-        model.openCodex()
+        model.openChatGPTDesktop()
     }
 
     @objc private func openClaudeFromMenu() {
         model.openClaude()
+    }
+
+    @objc private func openGrokFromMenu() {
+        model.openGrokBot()
     }
 
     @objc private func toggleMonitoringFromMenu() {

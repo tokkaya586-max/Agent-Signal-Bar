@@ -120,6 +120,16 @@ enum ActivityPresentation {
             .filter(isRunningCurrentSession)
     }
 
+    /// Badge: distinct sessions in 回复待查看 / 等待确认 / 错误 only.
+    static func attentionBadgeSessions(
+        from snapshot: SignalSnapshot,
+        now: Date = Date(),
+        limit: Int? = currentSessionLimit
+    ) -> [SessionStatus] {
+        visibleSessions(from: snapshot, now: now, limit: limit)
+            .filter(isAttentionBadgeSession)
+    }
+
     static func recentEvents(
         from snapshot: SignalSnapshot,
         excluding currentSessions: [SessionStatus],
@@ -368,6 +378,18 @@ enum ActivityPresentation {
         case .active, .completed, .needsReview, .permission, .blocked, .stale:
             return true
         case .ready, .paused:
+            return false
+        }
+    }
+
+    private static func isAttentionBadgeSession(_ session: SessionStatus) -> Bool {
+        if session.awaitingView {
+            return true
+        }
+        switch session.signal.displayState {
+        case .permission, .blocked:
+            return true
+        case .ready, .active, .completed, .needsReview, .stale, .paused:
             return false
         }
     }
