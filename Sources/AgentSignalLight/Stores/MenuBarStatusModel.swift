@@ -2428,6 +2428,27 @@ final class MenuBarStatusModel: ObservableObject {
         }
     }
 
+    func markAllAwaitingSessionsViewed() {
+        let ids = snapshot.sessions.filter(\.awaitingView).map(\.sessionID)
+        guard !ids.isEmpty else {
+            lastError = text("当前没有待查看的回复。", "No replies awaiting view.")
+            return
+        }
+        do {
+            var latest = snapshot
+            for id in ids {
+                latest = try store.markSessionViewed(sessionID: id)
+            }
+            snapshot = latest
+            lastError = nil
+        } catch {
+            lastError = text(
+                "标记已查看失败：\(error.localizedDescription)",
+                "Failed to mark viewed: \(error.localizedDescription)"
+            )
+        }
+    }
+
     func showStateFile() {
         NSWorkspace.shared.activateFileViewerSelecting([snapshot.stateFileURL])
     }
